@@ -1,6 +1,7 @@
 import {createSelector} from '@reduxjs/toolkit';
 
-import type {IssueLog, StatusFlag} from '../../../types/api/healthcheck';
+import type {IssueLog} from '../../../types/api/healthcheck';
+import {StatusFlag} from '../../../types/api/healthcheck';
 import type {RootState} from '../../defaultStore';
 import {api} from '../api';
 
@@ -31,18 +32,20 @@ export const healthcheckApi = api.injectEndpoints({
     overrideExisting: 'throw',
 });
 
-const mapStatusToPriority: Partial<Record<StatusFlag, number>> = {
-    RED: 0,
-    ORANGE: 1,
-    YELLOW: 2,
-    BLUE: 3,
-    GREEN: 4,
+const mapStatusToPriority: Record<StatusFlag, number> = {
+    [StatusFlag.RED]: 0,
+    [StatusFlag.ORANGE]: 1,
+    [StatusFlag.YELLOW]: 2,
+    [StatusFlag.BLUE]: 3,
+    [StatusFlag.GREEN]: 4,
+    [StatusFlag.GREY]: 5,
+    [StatusFlag.UNSPECIFIED]: 6,
 };
 
 const sortIssues = (data: IssueLog[]): IssueLog[] => {
-    return data.sort((a, b) => {
-        const aPriority = a.status ? mapStatusToPriority[a.status] || 0 : 0;
-        const bPriority = b.status ? mapStatusToPriority[b.status] || 0 : 0;
+    return data.slice().sort((a, b) => {
+        const aPriority = mapStatusToPriority[a.status ?? StatusFlag.UNSPECIFIED];
+        const bPriority = mapStatusToPriority[b.status ?? StatusFlag.UNSPECIFIED];
 
         return aPriority - bPriority;
     });
@@ -78,7 +81,8 @@ const selectIssuesTreesRoots = createSelector(getIssuesLog, (issues = []) => get
 export const selectLeavesIssues = createSelector(
     [getIssuesLog, selectIssuesTreesRoots],
     (data = [], roots = []) => {
-        return roots.map((root) => getLeavesFromTree(data, root)).flat();
+        const leaves = roots.map((root) => getLeavesFromTree(data, root)).flat();
+        return sortIssues(leaves);
     },
 );
 
