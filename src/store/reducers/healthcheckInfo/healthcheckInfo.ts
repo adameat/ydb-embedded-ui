@@ -1,6 +1,7 @@
 import {createSelector} from '@reduxjs/toolkit';
 
-import type {IssueLog, StatusFlag} from '../../../types/api/healthcheck';
+import type {IssueLog} from '../../../types/api/healthcheck';
+import {StatusFlag} from '../../../types/api/healthcheck';
 import type {RootState} from '../../defaultStore';
 import {api} from '../api';
 
