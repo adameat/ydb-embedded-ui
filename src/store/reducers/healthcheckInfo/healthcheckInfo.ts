@@ -31,12 +31,14 @@ export const healthcheckApi = api.injectEndpoints({
     overrideExisting: 'throw',
 });
 
-const mapStatusToPriority: Partial<Record<StatusFlag, number>> = {
-    RED: 0,
-    ORANGE: 1,
-    YELLOW: 2,
-    BLUE: 3,
-    GREEN: 4,
+const mapStatusToPriority: Record<StatusFlag, number> = {
+    [StatusFlag.RED]: 0,
+    [StatusFlag.ORANGE]: 1,
+    [StatusFlag.YELLOW]: 2,
+    [StatusFlag.BLUE]: 3,
+    [StatusFlag.GREEN]: 4,
+    [StatusFlag.GREY]: 5,
+    [StatusFlag.UNSPECIFIED]: 6,
 };
 
 const sortIssues = (data: IssueLog[]): IssueLog[] => {
@@ -78,7 +80,8 @@ const selectIssuesTreesRoots = createSelector(getIssuesLog, (issues = []) => get
 export const selectLeavesIssues = createSelector(
     [getIssuesLog, selectIssuesTreesRoots],
     (data = [], roots = []) => {
-        return roots.map((root) => getLeavesFromTree(data, root)).flat();
+        const leaves = roots.map((root) => getLeavesFromTree(data, root)).flat();
+        return sortIssues(leaves);
     },
 );
 
