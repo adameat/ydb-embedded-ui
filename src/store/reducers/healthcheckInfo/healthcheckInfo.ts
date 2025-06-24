@@ -44,8 +44,8 @@ const mapStatusToPriority: Record<StatusFlag, number> = {
 
 const sortIssues = (data: IssueLog[]): IssueLog[] => {
     return data.slice().sort((a, b) => {
-        const aPriority = a.status ? mapStatusToPriority[a.status] || 0 : 0;
-        const bPriority = b.status ? mapStatusToPriority[b.status] || 0 : 0;
+        const aPriority = mapStatusToPriority[a.status ?? StatusFlag.UNSPECIFIED];
+        const bPriority = mapStatusToPriority[b.status ?? StatusFlag.UNSPECIFIED];
 
         return aPriority - bPriority;
     });
